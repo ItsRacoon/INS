@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Redirect to text files</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; padding: 2rem; }
+    .link-card { margin: 0.5rem 0; }
+    a.button {
+      display: inline-block; padding: 0.5rem 1rem; text-decoration: none; color: #fff; background:#0078d4; border-radius:4px;
+    }
+    small { color:#666; margin-left:0.5rem }
+  </style>
+</head>
+<body>
+  <h1>Open text files</h1>
+  <p>Click a button below to open the corresponding text file. The class names (if found) are shown in brackets.</p>
+
+  <div id="links"></div>
+
+  <div style="margin-top:1rem">
+    <button id="openAll" class="button">Open all .txt files (new tabs)</button>
+    <small style="margin-left:0.5rem">(may be blocked by popup blocker)</small>
+  </div>
+
+  <hr>
+  <p>Quick actions via URL parameters:</p>
+  <ul>
+    <li><code>?to=1.txt</code> — open a single file</li>
+    <li><code>?open=all</code> — open all files in new tabs</li>
+  </ul>
+
+  <script>
+    const files = [
+      { path: '1.txt', name: '1.txt', cls: 'XorString' },
+      { path: '2.txt', name: '2.txt', cls: 'AndXorString' },
+      { path: '3a.txt', name: '3a.txt', cls: 'Caesercipher' },
+      { path: '3b.txt', name: '3b.txt', cls: 'SubstitutionCipher' },
+      { path: '4.txt', name: '4.txt', cls: 'BlowFish' },
+      { path: '5.txt', name: '5.txt', cls: 'transposition' },
+      { path: '6.txt', name: '6.txt', cls: 'SHA1' },
+      { path: '7.txt', name: '7.txt', cls: 'MD5' },
+      { path: '8.txt', name: '8.txt', cls: 'dsaAlg' },
+      { path: '9.txt', name: '9.txt', cls: 'DiffeHellman' },
+      { path: '10.txt', name: '10.txt', cls: 'RSA' }
+    ];
+
+    const container = document.getElementById('links');
+    files.forEach(f => {
+      const div = document.createElement('div');
+      div.className = 'link-card';
+      const a = document.createElement('a');
+      a.className = 'button';
+      a.href = f.path;
+      a.textContent = f.name;
+      div.appendChild(a);
+      const small = document.createElement('small');
+      small.textContent = '[' + f.cls + ']';
+      div.appendChild(small);
+      container.appendChild(div);
+    });
+
+    function openAll() {
+      files.forEach(f => {
+        try { window.open(f.path, '_blank'); } catch(e) {}
+      });
+    }
+
+    document.getElementById('openAll').addEventListener('click', openAll);
+
+    // URL param handling: ?to=filename or ?open=all
+    (function(){
+      try{
+        const params = new URLSearchParams(location.search);
+        const to = params.get('to');
+        const open = params.get('open');
+        if(open === 'all') {
+          openAll();
+        }
+        if(to) {
+          // allow either just a number like 1 or the filename
+          const byIndex = files.find(f => f.name === to || f.path === to || f.name === (to + '.txt'));
+          if(byIndex) location.href = byIndex.path;
+        }
+      }catch(e){/* ignore */}
+    })();
+  </script>
+</body>
+</html>
